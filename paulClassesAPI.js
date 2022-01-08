@@ -41,9 +41,9 @@ app.get("/getClassNames", (req, res) => {
     .catch((err) => console.log(err));
 });
 
-// GET request to send student details to application
+// GET request to send student names of a given class
 
-app.get("/getStudentRecords/:className", (req, res) => {
+app.get("/getStudentNames/:className", (req, res) => {
   const { className } = req.params;
 
   console.log(`Sending the names of all student of ${className}`);
@@ -55,6 +55,48 @@ app.get("/getStudentRecords/:className", (req, res) => {
       data = data.map((element) => _.startCase(element));
       // Sending the data
       res.send(data);
+    })
+    .catch((err) => console.log(err));
+});
+
+// GET request to send the details of a student given his name and class
+
+app.get("/getStudentRecords/:studentName/:studentClass", (req, res) => {
+  var { studentName, studentClass } = req.params;
+
+  // Replace % with a space
+
+  studentName = studentName.replace("%", " ");
+  studentClass = studentClass.replace("%", " ");
+
+  // JSON to store all the data being fetched
+  var studentsData = {};
+
+  // Fetching the data
+  fetch("https://randomuser.me/api/?inc=name,nat,email,location,phone,dob")
+    .then((response) => response.json())
+    .then((data) => {
+      studentsData["name"] = studentName;
+      console.log(studentName);
+      studentsData["address"] =
+        data.results[0].location.street.number +
+        ", " +
+        data.results[0].location.street.name +
+        ", " +
+        data.results[0].location.city +
+        ", " +
+        data.results[0].location.state +
+        ", " +
+        data.results[0].location.country;
+      studentsData["school"] = "Shishukunj International School";
+      studentsData["Class"] = studentClass;
+      studentsData["email"] = data.results[0].email;
+      studentsData["contactNumber"] = data.results[0].phone;
+      studentsData["dateOfJoining"] = data.results[0].dob.date;
+      studentsData["description"] =
+        "Good student but needs to concentrate more";
+
+      res.send(studentsData);
     })
     .catch((err) => console.log(err));
 });
