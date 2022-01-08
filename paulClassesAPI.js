@@ -1,7 +1,11 @@
+// Lodash to process the data
 var _ = require("lodash");
 
+// Importing node-fetch to enable data fetching
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
+
+// To handle POST and GET requests
 const express = require("express");
 const app = express();
 const PORT = 5000;
