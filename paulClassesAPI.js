@@ -1,5 +1,5 @@
 // Lodash to process the data
-var _ = require("lodash");
+var _ = require("lodash");  
 
 // Importing node-fetch to enable data fetching
 const fetch = (...args) =>
