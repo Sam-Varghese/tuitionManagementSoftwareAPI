@@ -10,8 +10,9 @@ This API has not been connected with the database. Hence it temporarily fetches 
 
 In order to start the server, you  need to execute the following command
 
+`npm i`
 `nodemon paulClassesAPI.js` (Name of coaching class is paul classes :) )
 
 Here I assume that you have nodemon already installed. If not, then execute
 
-`npm i -g nodemon` first
+`npm i -g nodemon` first and then the commands mentioned above
