@@ -1,7 +1,33 @@
 // Lodash to process the data
-var _ = require("lodash");  
+var _ = require("lodash");
+// Importing MySQL driver
+var mysql = require("mysql");
+// For extracting information from secret .env file.
+const dotenv = require("dotenv");
+dotenv.config();
+
+//$ Connecting to AWS RDS database
+
+var connection = mysql.createConnection({
+  host: process.env.host,
+  user: process.env.user,
+  password: process.env.password,
+  port: process.env.port,
+  database: process.env.database,
+});
+
+// Checking connection
+
+connection.connect((err) => {
+  if (err) {
+    console.log(err.message);
+    return;
+  }
+  console.log("Connection successfully established\n");
+});
 
 // Importing node-fetch to enable data fetching
+
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
@@ -18,19 +44,50 @@ app.use(
 
 app.use(express.json());
 
-// POST request to save student registration details
+// $ POST request to save student registration details
 
 app.post("/studentRegistrationDetails", (req, res) => {
-  const { studentName, studentClass } = req.body;
+  console.log(req.body);
 
-  if (!studentName || !studentClass) {
-    res.status(418).send({ message: "Didn't get either the name or class" });
-  }
+  // * Query to create studentsDatabase if it does not exist
 
-  res.send({ message: `Got the info of ${studentName} sir.` });
+  connection.query(
+    `CREATE DATABASE IF NOT EXISTS studentsDatabase`,
+    (error, result) => {
+      if (error) throw error;
+    }
+  );
+
+  // * Query to use studentsDatabase
+
+  connection.query(`USE studentsDatabase`, (error, result) => {
+    if (error) throw error;
+  });
+
+  // * Query to create the registrationDetails table if it does not exists
+
+  connection.query(
+    `CREATE TABLE IF NOT EXISTS registrationDetails(student_name VARCHAR(100), student_class VARCHAR(100), student_mail_id VARCHAR(100), student_address VARCHAR(300), student_contact_number VARCHAR(20), date_of_joining VARCHAR(10), deposit_pattern ENUM('Monthly', 'Yearly'), description VARCHAR(500))`,
+    (error, result) => {
+      if (error) throw error;
+    }
+  );
+
+  // * Query to insert to registration data to registrationDetails table
+
+  connection.query(
+    `INSERT INTO registrationDetails VALUES('${req.body.studentName}', '${req.body.studentClass}', '${req.body.studentMailId}', '${req.body.studentAddress}', '${req.body.studentContactNumber}', '${req.body.studentDOJ}', '${req.body.studentDepositPattern}', '${req.body.studentDescription}')`,
+    (error, result) => {
+      if (error) throw error;
+    }
+  );
+
+  // Sending the status and message
+  res.status(200).send({ message: "Success" });
 });
 
-// GET request to send names of all classes to application
+// $ GET request to send names of all classes to application
+
 app.get("/getClassNames", (req, res) => {
   console.log(`Sending the names of all classes`);
   // Fetching data
@@ -45,7 +102,7 @@ app.get("/getClassNames", (req, res) => {
     .catch((err) => console.log(err));
 });
 
-// GET request to send student names of a given class
+// $ GET request to send student names of a given class
 
 app.get("/getStudentNames/:className", (req, res) => {
   const { className } = req.params;
@@ -63,7 +120,7 @@ app.get("/getStudentNames/:className", (req, res) => {
     .catch((err) => console.log(err));
 });
 
-// GET request to send the details of a student given his name and class
+// $ GET request to send the details of a student given his name and class
 
 app.get("/getStudentRecords/:studentName/:studentClass", (req, res) => {
   var { studentName, studentClass } = req.params;
@@ -105,6 +162,7 @@ app.get("/getStudentRecords/:studentName/:studentClass", (req, res) => {
     .catch((err) => console.log(err));
 });
 
+// Configuring the port to keep it listening there
 app.listen(PORT, () => {
   console.log(`it's alive on http://localhost:${PORT}`);
 });

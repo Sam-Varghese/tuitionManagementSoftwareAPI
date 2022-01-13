@@ -16,3 +16,7 @@ In order to start the server, you  need to execute the following command
 Here I assume that you have nodemon already installed. If not, then execute
 
 `npm i -g nodemon` first and then the commands mentioned above
+
+## Things to keep in mind
+
+Program won't run  if you don't have AWS, RDS of MySQL. Enter put all the credentials inside .enc file
